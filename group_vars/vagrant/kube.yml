@@ -1,0 +1,10 @@
+
+k3s_server_token: oomiipieNoot8aitooPiegh4iSh5bo4v
+
+kube_interface_address: '{{ vagrant_private_ip }}'
+
+kube_node_advertise_host: '{{ kube_interface_address }}'
+kube_node_ip: '{{ kube_interface_address }}'
+kube_apiserver_bind_address: '{{ kube_interface_address }}'
+kube_apiserver_host: '{{ kube_interface_address }}'
+kube_apiserver_port: 6443

@@ -1,0 +1,19 @@
+
+k3s_is_worker: false
+k3s_is_apiserver: true
+
+kube_untaint_apiserver_nodes: true
+
+kube_cluster_cidr: 172.21.0.0/16
+kube_service_cidr: 172.23.0.0/16
+kube_cluster_dns:  172.23.53.53
+k3s_cluster_domain: cluster.local
+
+kubeconfig_location: /etc/kubernetes/kubeconfig
+
+kube_extra_sans:
+  - '{{ inventory_hostname }}'
+  - '{{ kube_interface_address }}'
+  - '{{ ansible_default_ipv4.address }}'
+
+k3s_apiserver_server: https://192.168.49.101:6443

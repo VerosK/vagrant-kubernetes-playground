@@ -1,0 +1,79 @@
+- name: Ensure bash-completion
+  package:
+   name:
+      - bash-completion
+
+- name: Ensure bash-completion compat dir
+  file:
+    path: /etc/bash_completion.d
+    state: directory
+
+- name: Ensure kubectl bash_completion
+  shell: kubectl completion bash > /etc/bash_completion.d/kubectl
+  args:
+    creates: /etc/bash_completion.d/kubectl
+
+- name: Ensure kubectl alias
+  copy:
+    dest: /etc/profile.d/kubectl-alias.sh
+    content: |
+       # kubectl alias
+       alias k=kubectl
+       complete -F __start_kubectl k
+
+- name: Ensure kubectl location
+  copy:
+    dest: /etc/profile.d/kubectl-config.sh
+    content: |
+       # kubectl alias
+       mkdir -p ${HOME}/.kube
+       export KUBECONFIG=${HOME}/.kube/config
+
+- name: Ensure kubens completion
+  copy:
+    dest: /etc/profile.d/kubens.sh
+    content: |
+       _kube_namespaces()
+       {
+          local curr_arg;
+          curr_arg=${COMP_WORDS[COMP_CWORD]}
+          COMPREPLY=( $(compgen -W "- $(kubectl get namespaces -o=jsonpath='{range .items[*].metadata.name}{@}{"\n"}{end}')" -- $curr_arg ) );
+       }
+
+       complete -F _kube_namespaces kubens kns
+
+- name: Get k9s
+  unarchive:
+    remote_src: yes
+    src: 'https://github.com/derailed/k9s/releases/download/v0.22.1/k9s_Linux_x86_64.tar.gz'
+    extra_opts: k9s
+    creates: /usr/bin/k9s
+    dest: /usr/bin
+  when: 'kubectl_with_k9s | default(True)'
+
+- name: Get fzf
+  unarchive:
+    remote_src: yes
+    src: 'https://github.com/junegunn/fzf/releases/download/0.28.0/fzf-0.28.0-linux_amd64.tar.gz'
+    extra_opts: fzf
+    creates: /usr/bin/fzf
+    dest: /usr/bin
+  when: 'kubectl_with_fzf | default(True)'
+
+
+- name: Get kubens
+  get_url:
+    url: 'https://raw.githubusercontent.com/ahmetb/kubectx/master/{{ item }}'
+    dest: /usr/bin/{{ item }}
+    mode: 0755
+  loop:
+    - kubens
+    - kubectx
+
+- name: Ensure jq
+  package: 
+   name: 
+      - jq
+      - tmux
+      - curl
+   state: present

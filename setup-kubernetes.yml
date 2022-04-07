@@ -1,0 +1,11 @@
+
+- name: Check network interfaces
+  hosts: kubernetes-hosts
+  any_errors_fatal: true
+
+  roles:
+    - role: local.k3s
+      tags: k3s
+    - role: local.kubectl-utils
+      when: k3s_is_apiserver
+
